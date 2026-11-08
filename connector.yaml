@@ -1,0 +1,6 @@
+id: "custom.muster"
+title: "Eclipse Muster"
+description: "Use Eclipse Muster, the local Customer Graph MCP server: governed record reads with field-level masking, propose-only identity merges under owner-confirm tokens, records-only reply drafts, and a hash-chained receipt ledger. Local stdio, synthetic C0 fixtures, no credential."
+include_in_prompt: true
+require_auth: false
+aliases: ["Muster", "Eclipse Muster", "Customer Graph", "Muster MCP"]
