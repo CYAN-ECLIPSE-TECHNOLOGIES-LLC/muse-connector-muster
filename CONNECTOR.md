@@ -4,11 +4,35 @@
 
 - No credential exists for this connector (`require_auth: false`). There is nothing to connect and no API key to register. The server is a local child process and, at this phase, no platform is contacted.
 
-- The helper lives in `~/workspace/custom-connectors/custom.muster/bin/`. `client.py` is the CLI client Muse runs. It spawns the server, runs one JSON-RPC session per invocation, and prints the result as JSON.
+- The helper lives in `~/workspace/custom-connectors/custom.muster/bin/`. `client.py` is the reference CLI client an MCP host runs (the Muse harness is one such host). It spawns the server, runs one JSON-RPC session per invocation, and prints the result as JSON.
+
+## Use from any MCP host
+
+This server is agent-neutral (STANDARD-AGENT-NEUTRAL-20261112.md (commission folder), rule ANC-5): any MCP-capable host can spawn it directly — no Muse registration, account, or token is involved, and no credential exists for it. Point the host at the server with an entry in its MCP server configuration:
+
+```json
+{
+  "mcpServers": {
+    "muster": {
+      "command": "eclipse-muster",
+      "args": [],
+      "env": {
+        "ECLIPSE_MUSTER_STATE": "/path/to/muster-state.json"
+      }
+    }
+  }
+}
+```
+
+Where the package is not installed, the same entry is `python3 /home/witness/app-family/eclipse-muster-mcp/server.py`, run with that checkout as the working directory. `ECLIPSE_MUSTER_STATE` is the server's state file; the reference client always sets a per-user default — a direct host should set its own. Synthetic C0 fixtures are the server's phase for every host.
+
+The Muse route — this folder's `connector.yaml` plus the reference client in `bin/client.py` — is one harness's packaging of the same server, kept fully working. A host that connects directly talks to the server itself: the server's own fences (method denylist, tier floors, token machinery, default-off postures) hold on every route. The bundled client additionally enforces this connector's grant (its allowlist and withheld set) before any call; that grant layer is a property of the client, not of the server, and it never widens what the server itself refuses by default.
 
 ## Status, stated honestly
 
-- Connector v0.1. The server is v0.1.0, phase C0, and runs on synthetic fixtures only.
+- Connector v0.1. The server is v0.1.1, phase C0; its fixtures and default state are synthetic, and the source tree also ships C1 loader tooling for a separate estate store (see Status below). QA-patterns cures MUSTER-9..15 landed in v0.1.1 (bench delta filed 2026-11-13, verdict pending).
+
+- Estate-side, the same server also holds the firm's C1 real-data store (Shard E, data/state-c1-firm-graph.json; never served through this connector and never mixed with C0 fixture state): slice 1 (relationship map, 50 records) plus slices 2–4 built 2026-11-13 (leads intel set + dispositions, P-6 outreach, contracts register + bid POCs) for 218 records total, all ingested through the server's governed record_ingest path by tools/c1_loader.py and tools/c1_loader_slices.py. Cross-slice identity is link-don't-duplicate: a person already in the graph gains an identity-link Activity, never a second record. The C1 store's bench position: slice 1 PASS-WITH-CONDITIONS with its condition cured; the slices 2–4 delta is filed and awaiting verdict.
 
 - The server package is not on PyPI yet. Install it from source for now (see Install). This doc will say so until the package is published.
 
@@ -25,7 +49,7 @@ python3 -m pip install ./eclipse-muster-mcp
 
 - The install puts an `eclipse-muster` command on your PATH. That is all the connector needs. When the package reaches PyPI, `python3 -m pip install eclipse-muster` replaces the two lines above and nothing else changes.
 
-- Install the connector by copying this repo's tree into your Muse custom connectors folder, so `connector.yaml`, `CONNECTOR.md`, and `bin/` land together:
+- Any MCP host can use the server directly — see "Use from any MCP host" below; no connector folder is required for that route. For the Muse harness specifically, install the connector by copying this repo's tree into your Muse custom connectors folder, so `connector.yaml`, `CONNECTOR.md`, and `bin/` land together:
 
 ```text
 cp -r muse-connector-muster ~/workspace/custom-connectors/custom.muster
@@ -85,9 +109,9 @@ python3 ~/workspace/custom-connectors/custom.muster/bin/client.py record-read --
 
 - `policy_show` (T0, read). Shows tier floors, effective tiers, kill switches, and the masking rules in force. Takes no arguments.
 
-- `receipt_list` (T0, read). Lists the hash-chained receipt ledger and reports `chain_valid`. Takes an optional `limit`. Receipts carry IDs, hashes, tiers, and verdicts, never content.
+- `receipt_list` (T0, read). Lists the hash-chained receipt ledger and reports `chain_valid`; on divergence it also returns a banner-class `integrity_warning` naming the first diverging receipt seq (QA P6 / MUSTER-13). Takes an optional `limit`. Receipts carry IDs, hashes, tiers, and verdicts, never content.
 
-- `record_search` (T0, read). Searches by `kind` and substring `query` and returns masked summaries. The query itself is receipted by hash only. On the analytic surface an email shows domain only, a name shows initials, a phone shows its last 2 digits, and government ID, payment, and health-adjacent fields return null.
+- `record_search` (T0, read). Searches by `kind` and substring `query` and returns masked summaries. The query itself is receipted by hash only. On the analytic surface an email shows domain only, a name shows initials, a phone shows its last 2 digits, and government ID, payment, and health-adjacent fields return null. Masking is by field and by content: on the analytic surface, email-shaped or phone-shaped substrings inside free-text fields (a summary, say) are masked with the same renderings, so an address printed in prose does not leak (GAP-C1-1, cured 2026-11-13). The owner surface renders in full.
 
 - `record_read` (T0, read). Reads one record by `record_id`, masked per `surface` (`owner` shows the full email, `analytic` applies the stricter masks). The read is receipted.
 

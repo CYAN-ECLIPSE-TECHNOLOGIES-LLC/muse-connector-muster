@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stdio MCP client for the Eclipse Muster MCP server (Muse connector).
+"""Stdio MCP client for the Eclipse Muster MCP server (agent-neutral MCP connector).
 
 Spawns the Muster server over stdio, runs one JSON-RPC session
 (initialize -> notifications/initialized -> one request), and prints
@@ -201,7 +201,7 @@ class StdioClient:
         result = self.send("initialize", {
             "protocolVersion": self.protocol,
             "capabilities": {},
-            "clientInfo": {"name": "muse-muster-connector-client",
+            "clientInfo": {"name": "custom.muster client",
                            "version": "0.1.0"},
         })
         protocol = result.get("protocolVersion")
