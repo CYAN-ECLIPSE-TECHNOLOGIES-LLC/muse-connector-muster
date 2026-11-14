@@ -77,11 +77,11 @@ python3 ~/workspace/custom-connectors/custom.muster/bin/client.py record-read --
 
 - Write each call's arguments as one JSON object, inline with `--args` or in a file with `--arguments-file`.
 
-- `client.py` only allows the nine tools listed in its `ALLOWED_TOOLS`, verified against the server's `tools/list`. A tool the server adds later stays blocked until reviewed and added.
+- `client.py` only allows the ten tools listed in its `ALLOWED_TOOLS`, verified against the server's `tools/list`. A tool the server adds later stays blocked until reviewed and added.
 
 ## Tools and tiers
 
-- Tier floors are fixed by the core. Reads are T0, internal writes and drafts are T1, and graph-merge execution is T2 behind an owner-confirm token. Policy may raise a floor per account and may never lower one.
+- Tier floors are fixed by the core. Reads are T0, internal writes and drafts are T1, graph-merge execution is T2 behind an owner-confirm token, and destructive erasure is T3 behind its confirm string. Policy may raise a floor per account and may never lower one.
 
 - `policy_show` (T0, read). Shows tier floors, effective tiers, kill switches, and the masking rules in force. Takes no arguments.
 
@@ -100,6 +100,8 @@ python3 ~/workspace/custom-connectors/custom.muster/bin/client.py record-read --
 - `merge_execute` (T2, write). Executes a graph merge only with the owner-confirm token `confirm-merge-<proposal_id>-<hash12>` bound to the proposal hash. It merges graph nodes only and never merges records inside a platform. Treat any use on the connector's persistent state as an owner-directed act with the token in hand, never as a routine call.
 
 - `merge_unmerge` (T2, write). Restores the pre-merge nodes exactly from the snapshot on the merge record. Requires the token `confirm-unmerge-<merge_id>`.
+
+- `retention_sweep` (T3, write). Erasure-class actuation — the facade's highest tier, above T2 merge execution. Destroys the field values of every record whose stamped retention has expired, byte-level, leaving a hash and a disposition receipt for each (QA P7 / MUSTER-14, added in server v0.1.1). Confirm-gated: it runs only with `confirm='PURGE_EXPIRED'`; without that exact string the server refuses with `CONFIRM_REQUIRED` and destroys nothing. It is not a general delete — it touches only retention-expired records and no other record at any tier. Treat any use on the connector's persistent state as an owner-directed act with the confirm string in hand, never as a routine call.
 
 ## Posture
 
@@ -129,7 +131,7 @@ python3 ~/workspace/custom-connectors/custom.muster/bin/client.py record-read --
 
 - Verified through the CLI above and the repo's test suite. Driving the server from another MCP host config works through the same `eclipse-muster` command, and that route is untested by this connector's suite.
 
-- Pagination is minimal at C0. `tools/list` returns all 9 tools in one page, and `receipt_list` takes a `limit` for the tail of the ledger.
+- Pagination is minimal at C0. `tools/list` returns all 10 tools in one page (the tenth, `retention_sweep` — the confirm-gated P7 erasure operation added in v0.1.1 — was reviewed into this connector's allowlist 2026-11-13, so it is reachable through this client under its T3 confirm gate above), and `receipt_list` takes a `limit` for the tail of the ledger.
 
 ## Tests
 

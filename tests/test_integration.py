@@ -29,7 +29,7 @@ import fixtures  # noqa: E402
 EXPECTED_TOOLS = [
     "record_ingest", "record_read", "record_search", "merge_propose",
     "merge_execute", "merge_unmerge", "reply_draft", "policy_show",
-    "receipt_list",
+    "receipt_list", "retention_sweep",
 ]
 
 
@@ -72,7 +72,7 @@ class IntegrationTests(unittest.TestCase):
             out = self.call("record_ingest", record)
             self.assertIn("record_id", out)
 
-    def test_list_tools_is_exactly_the_nine(self):
+    def test_list_tools_is_exactly_the_ten(self):
         proc = self.run_cli("list-tools")
         self.assertEqual(proc.returncode, 0, proc.stderr)
         names = [t["name"] for t in json.loads(proc.stdout)["tools"]]

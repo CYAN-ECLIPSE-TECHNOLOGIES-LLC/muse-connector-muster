@@ -49,7 +49,7 @@ import sys
 PROTOCOLS = {"2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"}
 
 # Exact tool names returned by the server's tools/list (verified
-# against eclipse-muster 0.1.0). A tool the server adds later stays
+# against eclipse-muster 0.1.1). A tool the server adds later stays
 # blocked until reviewed and added here.
 ALLOWED_TOOLS: set[str] = {
     "record_ingest",
@@ -61,6 +61,7 @@ ALLOWED_TOOLS: set[str] = {
     "reply_draft",
     "policy_show",
     "receipt_list",
+    "retention_sweep",
 }
 
 

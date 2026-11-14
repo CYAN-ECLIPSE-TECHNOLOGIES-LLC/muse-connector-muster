@@ -65,7 +65,7 @@ python3 ~/workspace/custom-connectors/custom.muster/bin/client.py list-tools
 ```
 
 The first prints the tier floors and masking rules in force. The
-second lists exactly nine tools.
+second lists exactly ten tools.
 
 ## Usage
 
@@ -89,7 +89,7 @@ experiments.
 
 The full operating doc, including how the helper resolves the server
 (`ECLIPSE_MUSTER_CMD`, the PATH entry point, a module entry, then
-`ECLIPSE_MUSTER_HOME`), all nine tools with their tiers, and error
+`ECLIPSE_MUSTER_HOME`), all ten tools with their tiers, and error
 recovery, is in [CONNECTOR.md](CONNECTOR.md).
 
 ## Safety posture
@@ -108,7 +108,7 @@ recovery, is in [CONNECTOR.md](CONNECTOR.md).
   marker — no outcome is ever invented. Drafts never send.
 - **A hard denylist.** No delete, no platform merge, no send, no bulk
   update, no macro or trigger edits, no session or scraping route —
-  at any tier. The client enforces its own nine-tool allowlist on
+  at any tier. The client enforces its own ten-tool allowlist on
   top of the server's.
 - **Customer text is data.** Instruction-shaped content in customer
   messages is quarantined at ingest, reported at draft time, and
@@ -126,7 +126,7 @@ zero), in two layers:
   per-platform state-path resolution, argument parsing, and the
   allowlist's exact contents.
 - **Integration** — the real server spawned through the helper against
-  a temp state: the nine tools by name, tier floors, an empty-ledger
+  a temp state: the ten tools by name, tier floors, an empty-ledger
   chain check, a masked ingest-and-search round trip, propose-only
   merge semantics, a wrong-token merge refusal, a token-bound merge
   and unmerge, and a records-only draft check. All hermetic: temp

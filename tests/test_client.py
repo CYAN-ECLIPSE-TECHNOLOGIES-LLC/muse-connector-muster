@@ -142,11 +142,12 @@ class ArgumentParsingTests(unittest.TestCase):
         args = self.parse(["list-tools"])
         self.assertIsNone(client.build_tool_call(args))
 
-    def test_allowlist_is_exactly_the_nine_tools(self):
+    def test_allowlist_is_exactly_the_ten_tools(self):
         self.assertEqual(client.ALLOWED_TOOLS, {
             "record_ingest", "record_read", "record_search",
             "merge_propose", "merge_execute", "merge_unmerge",
-            "reply_draft", "policy_show", "receipt_list"})
+            "reply_draft", "policy_show", "receipt_list",
+            "retention_sweep"})
         for forbidden in ("record_delete", "platform_merge", "reply_send",
                           "email_send", "bulk_update"):
             self.assertNotIn(forbidden, client.ALLOWED_TOOLS)
